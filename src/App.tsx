@@ -1,13 +1,13 @@
+import { Route, Router, Routes } from "react-router-dom";
 import NavigationLayout from "./layouts/NavigationLayout";
+import HomePage from "./Pages/HomePage";
 
 
-function App(){
+const App : React.FC = () => {
   return(
-    <NavigationLayout>
-      <section className="flex flex-col justify-center items-center h-[100vh]">
-        <h1 className="text-[#0F62FE] text-5xl font-extrabold">Xeno Assignment Frontend - 10-09-25</h1>
-      </section>
-    </NavigationLayout>
+    <Routes>
+      <Route path="/" element={<HomePage/>}/>
+    </Routes>
   )
 }
 
