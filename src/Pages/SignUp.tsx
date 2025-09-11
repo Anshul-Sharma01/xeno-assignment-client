@@ -1,10 +1,11 @@
 import type React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import type { AppDispatch } from "../redux/store";
-import { useState } from "react";
+import type { AppDispatch, RootState } from "../redux/store";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { registerTenant } from "../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 
 
 interface RegisterData{
@@ -20,6 +21,7 @@ const SignUp : React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch < AppDispatch >();
+    const isLoggedIn = useSelector((state : RootState) => state?.auth?.isLoggedIn);
 
     const [registerData, setRegisterData] = useState < RegisterData > ({
         name : "",
@@ -28,6 +30,10 @@ const SignUp : React.FC = () => {
         shopifyDomain : "",
         accessToken : ""
     })
+
+    useEffect(() => {
+        if(isLoggedIn) navigate("/");
+    }, [navigate, isLoggedIn]);
 
     const registerDispatcher = async(e : React.FormEvent < HTMLFormElement >) => {
         e.preventDefault();
