@@ -58,7 +58,7 @@ const authSlice = createSlice({
     extraReducers : (builder) => {
         builder
             .addCase(registerTenant.fulfilled, (state, action : PayloadAction < any > ) => {
-                if(action?.payload?.data?.success){
+                if(action?.payload?.success){
                     state.isLoggedIn = true;
                     state.tenantData = getTenantData(action?.payload?.data?.tokens?.accessToken);
                 }
@@ -68,12 +68,13 @@ const authSlice = createSlice({
             })
 
             .addCase(loginTenant.fulfilled, (state, action : PayloadAction < any >) => {
-                if(action?.payload?.data?.success){
+                if(action?.payload?.success){
                     state.isLoggedIn = true;
                     state.tenantData = getTenantData(action?.payload?.data?.tokens?.accessToken);
                 }
             })
             .addCase(loginTenant.rejected, (_, action : PayloadAction < any >) => {
+                console.log("Error on login : ", action);
                 toast.error(action.payload as string);
             })
 

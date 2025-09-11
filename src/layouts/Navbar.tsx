@@ -1,14 +1,17 @@
 import { MdKeyboardArrowRight, MdMenu, MdClose } from "react-icons/md";
 import { useState } from "react";
-import type { RootState } from "../redux/store";
+import type { AppDispatch, RootState } from "../redux/store";
 import { useSelector } from "react-redux";
 import TenantProfile from "./TenantProfile";
-
+import { Link } from "react-router-dom";
 
 const Navbar : React.FC = () => {
 
     const { isLoggedIn, tenantData} = useSelector((state : RootState ) => state?.auth);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+
+
 
     return(
         <nav className="p-4 border-b-2 border-black/20">
@@ -30,15 +33,15 @@ const Navbar : React.FC = () => {
                 </ul>
                 <section className="flex justify-center items-center gap-4">
                     {
-                        isLoggedIn ? (
+                        !isLoggedIn ? (
                             <>
-                                <button className="pt-3 pl-4 pr-4 pb-3 border-gray-200 border-2 rounded-3xl cursor-pointer hover:border-gray-300">
+                                <Link to="/sign-in" className="pt-3 pl-4 pr-4 pb-3 border-gray-200 border-2 rounded-3xl cursor-pointer hover:border-gray-300">
                                     Sign in
-                                </button>
-                                <button className="pt-3 pl-4 pr-4 pb-3 bg-[#0F62FE] text-white rounded-3xl cursor-pointer flex gap-2 justify-center items-center  hover:translate-y-[-4px] hover:transition-all">
+                                </Link>
+                                <Link to="/sign-up" className="pt-3 pl-4 pr-4 pb-3 bg-[#0F62FE] text-white rounded-3xl cursor-pointer flex gap-2 justify-center items-center  hover:translate-y-[-4px] hover:transition-all">
                                     Sign up
                                     <MdKeyboardArrowRight className="text-white text-xl"/>
-                                </button>
+                                </Link>
                             </>
                         ) : (
                             <>

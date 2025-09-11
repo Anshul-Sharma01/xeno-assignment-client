@@ -1,4 +1,7 @@
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../redux/store";
+import { logoutTenant } from "../redux/slices/authSlice";
 
 interface TenantData{
     id : string;
@@ -7,6 +10,14 @@ interface TenantData{
 }
 
 const TenantProfile : React.FC < { tenantData : TenantData | null } > = ({ tenantData }) => {
+
+  const dispatch = useDispatch < AppDispatch >();
+
+    
+  const logoutDispatcher = async (): Promise<void> => {
+      await dispatch(logoutTenant());
+  };
+
   return (
     <div className="bg-[#F2F8FF] flex items-center gap-4 rounded-xl px-4 py-2 border border-gray-300 shadow-sm hover:shadow-md transition group w-fit cursor-pointer">
       <img src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80" alt="Avatar Vector" className="h-12 w-12 rounded-full border border-gray-400 group-hover:scale-105 transition-transform duration-200" />
@@ -22,7 +33,7 @@ const TenantProfile : React.FC < { tenantData : TenantData | null } > = ({ tenan
       </div>
 
       <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 ">
-        <button className="px-3 py-1 text-sm text-white bg-[#0F62FE] rounded-lg hover:bg-red-500 transition-colors duration-200 cursor-pointer">
+        <button onClick={logoutDispatcher} className="px-3 py-1 text-sm text-white bg-[#0F62FE] rounded-lg hover:bg-red-500 transition-colors duration-200 cursor-pointer">
           Logout
         </button>
         <MdKeyboardArrowDown className="text-gray-600 group-hover:rotate-180 transition-transform duration-200" />
