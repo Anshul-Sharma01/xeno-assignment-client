@@ -3,6 +3,7 @@ import axiosInstance from "../../helpers/axiosInstance";
 import toast from "react-hot-toast";
 import { toastHandler } from "../../helpers/toastHandler";
 
+
 interface TenantData{
     accessToken : string,
     refreshToken : string,
@@ -105,6 +106,8 @@ const authSlice = createSlice({
 
             .addCase(hydrateAuth.fulfilled, (state, action: PayloadAction<any>) => {
                 state.isHydrating = false;
+                console.log("Hydrate fulfilled payload:", action.payload); // 👀 log backend data
+
                 if (action?.payload?.success) {
                   state.isLoggedIn = true;
                   state.tenantData = action?.payload?.tenantData ?? null;
