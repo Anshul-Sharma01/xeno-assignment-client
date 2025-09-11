@@ -10,7 +10,7 @@ const HomePage = () => {
                     Shopify Environment
                 </h1>
 
-                <p className="text-2xl mt-4">Want to know more about Xeno ??</p>
+                <p className="text-2xl mt-4 bg-[#D0E2FF] p-2 rounded-lg">Want to know more about Xeno ??</p>
                 
                 <div className="flex justify-center items-center gap-6 mt-8">
                     <a href="https://www.getxeno.com/" target="_blank" className="px-6 py-3 border-2 border-gray-300 rounded-3xl text-gray-600 cursor-pointer hover:border-gray-400 hover:text-gray-800">
