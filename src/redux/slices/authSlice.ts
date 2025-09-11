@@ -25,7 +25,7 @@ export const registerTenant = createAsyncThunk("auth/register", async(data : any
         const res = await promise;
         return res.data;
     }catch(err : any){
-        return rejectWithValue(err.response?.data?.message || "error occurred while registeration process...");
+        return rejectWithValue(err.response?.data?.error || "error occurred while registeration process...");
     }
 })
 
@@ -36,7 +36,7 @@ export const loginTenant = createAsyncThunk("auth/login", async(data : any, { re
         const res = await promise;
         return res.data;
     }catch(err : any){
-        return rejectWithValue(err.response?.data?.message || "Error occurred while logging...");
+        return rejectWithValue(err.response?.data?.error || "Error occurred while logging...");
     }
 })
 
@@ -47,7 +47,7 @@ export const logoutTenant = createAsyncThunk("auth/logout", async(_, { rejectWit
         const res = await promise;
         return res.data;
     }catch(err : any){
-        return rejectWithValue(err.response?.data?.message || "Logout Failed !!");
+        return rejectWithValue(err.response?.data?.error || "Logout Failed !!");
     }
 })
 

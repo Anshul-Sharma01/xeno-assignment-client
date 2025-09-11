@@ -1,17 +1,23 @@
 import { MdKeyboardArrowRight, MdMenu, MdClose } from "react-icons/md";
 import { useState } from "react";
 import type { AppDispatch, RootState } from "../redux/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TenantProfile from "./TenantProfile";
 import { Link } from "react-router-dom";
+import { logoutTenant } from "../redux/slices/authSlice";
 
 const Navbar : React.FC = () => {
 
     const { isLoggedIn, tenantData} = useSelector((state : RootState ) => state?.auth);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+    
+  const dispatch = useDispatch < AppDispatch >();
 
 
+    const logoutDispatcher = async (): Promise<void> => {
+        await dispatch(logoutTenant());
+    };
 
     return(
         <nav className="p-4 border-b-2 border-black/20">
@@ -45,7 +51,9 @@ const Navbar : React.FC = () => {
                             </>
                         ) : (
                             <>
-                                <TenantProfile tenantData={tenantData}/>
+                                <button onClick={logoutDispatcher} className="px-6 py-2 text-md text-white bg-[#0F62FE] rounded-lg hover:bg-red-500 transition-colors duration-200 cursor-pointer">
+                                    Logout
+                                </button>
                             </>
                         )
                     }

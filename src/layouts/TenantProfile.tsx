@@ -1,7 +1,3 @@
-import { MdKeyboardArrowDown } from "react-icons/md";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../redux/store";
-import { logoutTenant } from "../redux/slices/authSlice";
 
 interface TenantData{
     id : string;
@@ -11,12 +7,9 @@ interface TenantData{
 
 const TenantProfile : React.FC < { tenantData : TenantData | null } > = ({ tenantData }) => {
 
-  const dispatch = useDispatch < AppDispatch >();
 
     
-  const logoutDispatcher = async (): Promise<void> => {
-      await dispatch(logoutTenant());
-  };
+
 
   return (
     <div className="bg-[#F2F8FF] flex items-center gap-4 rounded-xl px-4 py-2 border border-gray-300 shadow-sm hover:shadow-md transition group w-fit cursor-pointer">
@@ -24,19 +17,12 @@ const TenantProfile : React.FC < { tenantData : TenantData | null } > = ({ tenan
 
       <div className="flex flex-col">
         <p title="Tenant Email" className="text-sm font-medium text-gray-800 truncate max-w-[180px]" >
-          {tenantData?.email || "anshulsharma2926@gmail.com"}
+          {tenantData?.email }
         </p>
-        <a target="_blank" href={tenantData?.shopifyDomain || "https://www.google.com"} className="text-[#0F62FE] text-sm hover:underline truncate max-w-[180px]" title="Shopify Domain"
+        <a target="_blank" href={tenantData?.shopifyDomain} className="text-[#0F62FE] text-sm hover:underline truncate max-w-[180px]" title="Shopify Domain"
         >
-          {tenantData?.shopifyDomain || "www.google.com"}
+          {tenantData?.shopifyDomain }
         </a>
-      </div>
-
-      <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2 ">
-        <button onClick={logoutDispatcher} className="px-3 py-1 text-sm text-white bg-[#0F62FE] rounded-lg hover:bg-red-500 transition-colors duration-200 cursor-pointer">
-          Logout
-        </button>
-        <MdKeyboardArrowDown className="text-gray-600 group-hover:rotate-180 transition-transform duration-200" />
       </div>
     </div>
   );
