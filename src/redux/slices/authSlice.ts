@@ -1,21 +1,24 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "../../helpers/axiosInstance";
 import toast from "react-hot-toast";
-import { isTokenValid } from "../../helpers/istokenValid";
-import Cookies from "js-cookie";
-import { getTenantData, type TenantPayload } from "../../helpers/getTenantData";
 import { toastHandler } from "../../helpers/toastHandler";
 
-const token = Cookies.get("accessToken");
+interface TenantData{
+    accessToken : string,
+    refreshToken : string,
+    tenantId : string
+}
 
 interface TenantState{
     isLoggedIn : boolean;
-    tenantData : TenantPayload | null;
+    tenantData : TenantData | null;
+    isHydrating : boolean;
 }
 
 const initialState : TenantState = {
-    isLoggedIn : token ? isTokenValid(token) : false,
-    tenantData : token && isTokenValid(token) ? getTenantData(token) : null
+    isLoggedIn : false,
+    tenantData : null,
+    isHydrating : true
 }
 
 export const registerTenant = createAsyncThunk("auth/register", async(data : any, { rejectWithValue }) => {
@@ -51,6 +54,15 @@ export const logoutTenant = createAsyncThunk("auth/logout", async(_, { rejectWit
     }
 })
 
+export const hydrateAuth = createAsyncThunk("auth/hydrate", async(_, { rejectWithValue }) => {
+    try{
+        const res = await axiosInstance.post("tenant/refresh-token");
+        return res.data;
+    }catch(err : any){
+        return rejectWithValue(err.response?.data?.error || "Not authenticated");
+    }
+})
+
 const authSlice = createSlice({
     name : "auth",
     initialState,
@@ -60,7 +72,7 @@ const authSlice = createSlice({
             .addCase(registerTenant.fulfilled, (state, action : PayloadAction < any > ) => {
                 if(action?.payload?.success){
                     state.isLoggedIn = true;
-                    state.tenantData = getTenantData(action?.payload?.data?.tokens?.accessToken);
+                    state.tenantData = action?.payload?.tenantData;
                 }
             })
             .addCase(registerTenant.rejected, (_, action : PayloadAction < any >) => {
@@ -70,7 +82,7 @@ const authSlice = createSlice({
             .addCase(loginTenant.fulfilled, (state, action : PayloadAction < any >) => {
                 if(action?.payload?.success){
                     state.isLoggedIn = true;
-                    state.tenantData = getTenantData(action?.payload?.data?.tokens?.accessToken);
+                    state.tenantData = action?.payload?.tenantData;
                 }
             })
             .addCase(loginTenant.rejected, (_, action : PayloadAction < any >) => {
@@ -87,6 +99,24 @@ const authSlice = createSlice({
                 state.tenantData = null;
             })
 
+            .addCase(hydrateAuth.pending, (state) => {
+                state.isHydrating = true;
+            })
+
+            .addCase(hydrateAuth.fulfilled, (state, action: PayloadAction<any>) => {
+                state.isHydrating = false;
+                if (action?.payload?.success) {
+                  state.isLoggedIn = true;
+                  state.tenantData = action?.payload?.tenantData ?? null;
+                }
+            })
+
+            .addCase(hydrateAuth.rejected, (state) => {
+                state.isHydrating = false;
+                state.isLoggedIn = false;
+                state.tenantData = null;
+            });
+              
     } 
 })
 
