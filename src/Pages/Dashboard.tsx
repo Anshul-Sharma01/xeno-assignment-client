@@ -189,7 +189,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {abandonedCheckouts.recent.map((c: any) => (
+                  {abandonedCheckouts?.recent?.map((c: any) => (
                     <tr key={c.external_id} className="border-t">
                       <td className="p-2">{c.external_id}</td>
                       <td className="p-2">{c.customer_id || "Guest"}</td>

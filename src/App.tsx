@@ -1,5 +1,4 @@
-import { Route, Router, Routes } from "react-router-dom";
-import NavigationLayout from "./layouts/NavigationLayout";
+import { Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import XenoLoader from "./components/XenoLoader";
 import { useSelector } from "react-redux";

@@ -2,7 +2,6 @@ import { MdKeyboardArrowRight, MdMenu, MdClose } from "react-icons/md";
 import { useState } from "react";
 import type { AppDispatch, RootState } from "../redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import TenantProfile from "./TenantProfile";
 import { Link } from "react-router-dom";
 import { logoutTenant } from "../redux/slices/authSlice";
 
