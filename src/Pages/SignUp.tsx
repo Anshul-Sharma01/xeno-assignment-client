@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { registerTenant } from "../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import { LuEye, LuEyeClosed  } from "react-icons/lu";
+
 
 
 interface RegisterData{
@@ -30,6 +32,27 @@ const SignUp : React.FC = () => {
         shopifyDomain : "",
         accessToken : ""
     })
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [passwordTouched, setPasswordTouched] = useState<boolean>(false);
+
+    const passwordRules = {
+        minLength: 8,
+        hasUpper: /[A-Z]/,
+        hasLower: /[a-z]/,
+        hasNumber: /[0-9]/,
+        hasSpecial: /[^A-Za-z0-9]/
+    };
+
+    const isPasswordValid = (() => {
+        const pwd = registerData.password || "";
+        return (
+            pwd.length >= passwordRules.minLength &&
+            passwordRules.hasUpper.test(pwd) &&
+            passwordRules.hasLower.test(pwd) &&
+            passwordRules.hasNumber.test(pwd) &&
+            passwordRules.hasSpecial.test(pwd)
+        );
+    })();
 
     useEffect(() => {
         if(isLoggedIn) navigate("/");
@@ -39,6 +62,10 @@ const SignUp : React.FC = () => {
         e.preventDefault();
         if(!registerData?.email || !registerData?.name || !registerData?.password || !registerData?.shopifyDomain || !registerData?.accessToken){
             toast.error("All fields are mandatory !!");
+            return;
+        }
+        if(!isPasswordValid){
+            toast.error("Password does not meet the requirements.");
             return;
         }
         const res = await dispatch(registerTenant(registerData));
@@ -78,7 +105,38 @@ const SignUp : React.FC = () => {
 
                     <div className="flex flex-col gap-2 md:col-span-2">
                         <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
-                        <input value={registerData?.password} onChange={handleChange} type="password" id="password" name="password" placeholder="Please enter password" className="w-full bg-white rounded-xl px-4 py-3 border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F62FE] focus:border-transparent"/>
+                        <div className="relative">
+                            <input value={registerData?.password} onChange={(e) => { handleChange(e); if(!passwordTouched) setPasswordTouched(true); }} onBlur={() => setPasswordTouched(true)} type={showPassword ? "text" : "password"} id="password" name="password" placeholder="Please enter password" className="w-full bg-white rounded-xl px-4 py-3 border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F62FE] focus:border-transparent pr-12"/>
+                            <button type="button" aria-label="Toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                {showPassword ? (
+                                    <LuEye/>
+                                ) : (
+                                    <LuEyeClosed/>
+                                )}
+                            </button>
+                        </div>
+                        <div className="mt-2 text-xs text-gray-600 space-y-1">
+                            <div className={`flex items-center gap-2 ${registerData.password.length >= passwordRules.minLength ? "text-green-600" : ""}`}>
+                                <span className="inline-block h-2 w-2 rounded-full ${registerData.password.length >= passwordRules.minLength ? 'bg-green-600' : 'bg-gray-300'}"></span>
+                                Minimum {passwordRules.minLength} characters
+                            </div>
+                            <div className={`flex items-center gap-2 ${passwordRules.hasUpper.test(registerData.password) ? "text-green-600" : ""}`}>
+                                <span className="inline-block h-2 w-2 rounded-full ${passwordRules.hasUpper.test(registerData.password) ? 'bg-green-600' : 'bg-gray-300'}"></span>
+                                At least one uppercase letter
+                            </div>
+                            <div className={`flex items-center gap-2 ${passwordRules.hasLower.test(registerData.password) ? "text-green-600" : ""}`}>
+                                <span className="inline-block h-2 w-2 rounded-full ${passwordRules.hasLower.test(registerData.password) ? 'bg-green-600' : 'bg-gray-300'}"></span>
+                                At least one lowercase letter
+                            </div>
+                            <div className={`flex items-center gap-2 ${passwordRules.hasNumber.test(registerData.password) ? "text-green-600" : ""}`}>
+                                <span className="inline-block h-2 w-2 rounded-full ${passwordRules.hasNumber.test(registerData.password) ? 'bg-green-600' : 'bg-gray-300'}"></span>
+                                At least one number
+                            </div>
+                            <div className={`flex items-center gap-2 ${passwordRules.hasSpecial.test(registerData.password) ? "text-green-600" : ""}`}>
+                                <span className="inline-block h-2 w-2 rounded-full ${passwordRules.hasSpecial.test(registerData.password) ? 'bg-green-600' : 'bg-gray-300'}"></span>
+                                At least one special character
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -88,7 +146,16 @@ const SignUp : React.FC = () => {
 
                     <div className="flex flex-col gap-2">
                         <label htmlFor="token" className="text-sm font-medium text-gray-700">Access Token</label>
-                        <input value={registerData?.accessToken} onChange={handleChange} type="password" id="token" name="accessToken" placeholder="Enter your Shopify access token" className="w-full bg-white rounded-xl px-4 py-3 border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F62FE] focus:border-transparent"/>
+                        <div className="relative">
+                            <input value={registerData?.accessToken} onChange={handleChange} type={showPassword ? "text" : "password"} id="token" name="accessToken" placeholder="Enter your Shopify access token" className="w-full bg-white rounded-xl px-4 py-3 border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F62FE] focus:border-transparent pr-12"/>
+                            <button type="button" aria-label="Toggle access token visibility" onClick={() => setShowPassword((prev) => !prev)} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                {showPassword ? (
+                                    <LuEye/>
+                                ) : (
+                                    <LuEyeClosed/>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
 

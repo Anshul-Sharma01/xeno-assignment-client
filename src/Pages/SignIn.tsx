@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { loginTenant } from "../redux/slices/authSlice";
 import { useSelector } from "react-redux";
+import { LuEye, LuEyeClosed  } from "react-icons/lu";
+
 
 
 interface LoginFormData{
@@ -25,6 +27,7 @@ const SignIn : React.FC = () => {
         email : "",
         password : ""
     })
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     useEffect(() => {
         if(isLoggedIn) navigate("/");
@@ -71,9 +74,18 @@ const SignIn : React.FC = () => {
 
                     <div className="flex flex-col gap-2 md:col-span-2">
                         <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
-                        <input type="password" id="password" name="password" value={formData?.password} placeholder="Please enter password" className="w-full bg-white rounded-xl px-4 py-3 border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F62FE] focus:border-transparent"
-                        onChange={handleChange}
-                        />
+                        <div className="relative">
+                            <input type={showPassword ? "text" : "password"} id="password" name="password" value={formData?.password} placeholder="Please enter password" className="w-full bg-white rounded-xl px-4 py-3 border border-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0F62FE] focus:border-transparent pr-12"
+                            onChange={handleChange}
+                            />
+                            <button type="button" aria-label="Toggle password visibility" onClick={() => setShowPassword((prev) => !prev)} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                {showPassword ? (
+                                    <LuEye/>
+                                ) : (
+                                    <LuEyeClosed/>
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     
