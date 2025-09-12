@@ -5,6 +5,14 @@ import { getDashboardAllThunk } from "../redux/slices/dashboardSlice";
 import NavigationLayout from "../layouts/NavigationLayout";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, ResponsiveContainer } from "recharts";
 import TenantProfile from "../layouts/TenantProfile";
+import socket from "../helpers/socket";
+import toast from "react-hot-toast";
+
+
+interface SocketData{
+  tenantId : string;
+  timestamp : string;
+}
 
 const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -15,6 +23,33 @@ const Dashboard = () => {
   const tenantData = useSelector(
     (state: RootState) => state.auth.tenantData
   );
+
+  
+
+  useEffect(() => {
+
+    socket.on("tenantSyncComplete", (data : SocketData) => {
+      if(tenantData?.tenantId == data?.tenantId){
+        dispatch(getDashboardAllThunk({ tenantId : tenantData?.tenantId }));
+        toast.dismiss();
+        toast.success("Data Synced Succesfully");
+      }
+    })
+
+    return () => {
+      socket.off("tenantSyncComplete");
+    }
+  }, [ tenantData?.tenantId, dispatch])
+
+  useEffect(() => {
+    socket.on("syncComplete", (data : SocketData) => {
+      toast.success(`All Tenants Synced !!`);
+    })
+
+    return () => {
+      socket.off("syncComplete");
+    }
+  }, [])
 
   useEffect(() => {
     if (tenantData?.tenantId) {
