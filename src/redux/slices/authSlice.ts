@@ -7,7 +7,10 @@ import { toastHandler } from "../../helpers/toastHandler";
 interface TenantData{
     accessToken : string,
     refreshToken : string,
-    tenantId : string
+    tenantId : string,
+    tenant_name : string,
+    tenant_email : string,
+    tenant_domain : string
 }
 
 interface TenantState{

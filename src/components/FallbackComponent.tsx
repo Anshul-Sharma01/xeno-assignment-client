@@ -7,33 +7,12 @@ interface ErrorFallbackProps {
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetErrorBoundary }) => {
   return (
-    <div
-      style={{
-        backgroundColor: "#F2F8FF",
-        color: "#0F62FE",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        textAlign: "center",
-        padding: "20px",
-      }}
-    >
-      <h1 style={{ color: "#0F62FE", marginBottom: "16px" }}>Something went wrong</h1>
-      <p style={{ color: "#0F62FE", marginBottom: "24px" }}>{error.message}</p>
+    <div className="bg-blue-50 text-blue-600 h-screen flex flex-col justify-center items-center text-center p-5">
+      <h1 className="text-blue-600 mb-4">Something went wrong</h1>
+      <p className="text-blue-600 mb-6">{error.message}</p>
       <button
         onClick={resetErrorBoundary}
-        style={{
-          backgroundColor: "#0F62FE",
-          color: "#D0E2FF",
-          border: "none",
-          padding: "10px 20px",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontWeight: "bold",
-          fontSize: "16px",
-        }}
+        className="bg-blue-600 text-blue-100 border-none px-5 py-2.5 rounded-lg cursor-pointer font-bold text-base hover:bg-blue-700 transition-colors"
       >
         Try Again
       </button>

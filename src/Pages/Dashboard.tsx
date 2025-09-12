@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { getDashboardAllThunk } from "../redux/slices/dashboardSlice";
 import NavigationLayout from "../layouts/NavigationLayout";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, ResponsiveContainer } from "recharts";
+import TenantProfile from "../layouts/TenantProfile";
 
 const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -11,20 +12,29 @@ const Dashboard = () => {
   const { summary, ordersByDate, topCustomers, averageOrderValue } = useSelector(
     (state: RootState) => state.dashboard
   );
-  const tenantId = useSelector(
-    (state: RootState) => state.auth.tenantData?.tenantId
+  const tenantData = useSelector(
+    (state: RootState) => state.auth.tenantData
   );
 
   useEffect(() => {
-    if (tenantId) {
-      dispatch(getDashboardAllThunk({ tenantId }));
+    if (tenantData?.tenantId) {
+      dispatch(getDashboardAllThunk({ tenantId : tenantData?.tenantId }));
     }
-  }, [tenantId, dispatch]);
+  }, [tenantData?.tenantId, dispatch]);
 
   return (
     <NavigationLayout>
       <div className="p-6 space-y-10">
         <h1 className="text-3xl font-bold text-[#0F62FE]">Dashboard</h1>
+
+        {tenantData?.tenantId && tenantData?.tenant_email && tenantData?.tenant_name && tenantData?.tenant_domain && (
+          <TenantProfile tenantData={{
+            tenant_id: tenantData.tenantId,
+            tenant_email: tenantData.tenant_email,
+            tenant_name: tenantData.tenant_name,
+            tenant_domain: tenantData.tenant_domain
+          }} />
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="p-6 bg-white shadow rounded-2xl text-center">
@@ -78,7 +88,7 @@ const Dashboard = () => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topCustomers}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="customer_id" />
+                <XAxis dataKey="customer_name" />
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="totalSpend" fill="#0F62FE" />
