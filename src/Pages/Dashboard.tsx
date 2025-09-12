@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getDashboardAllThunk } from "../redux/slices/dashboardSlice";
 import NavigationLayout from "../layouts/NavigationLayout";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, ResponsiveContainer } from "recharts";
@@ -24,13 +24,18 @@ const Dashboard = () => {
     (state: RootState) => state.auth.tenantData
   );
 
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const isRangeComplete = !!startDate && !!endDate;
+  const isRangeValid = isRangeComplete ? new Date(startDate) <= new Date(endDate) : false;
+
   
 
   useEffect(() => {
 
     socket.on("tenantSyncComplete", (data : SocketData) => {
       if(tenantData?.tenantId == data?.tenantId){
-        dispatch(getDashboardAllThunk({ tenantId : tenantData?.tenantId }));
+        dispatch(getDashboardAllThunk({ tenantId : tenantData?.tenantId, startDate: startDate || undefined, endDate: endDate || undefined }));
         toast.dismiss();
         toast.success("Data Synced Succesfully");
       }
@@ -39,10 +44,10 @@ const Dashboard = () => {
     return () => {
       socket.off("tenantSyncComplete");
     }
-  }, [ tenantData?.tenantId, dispatch])
+  }, [ tenantData?.tenantId, dispatch, startDate, endDate])
 
   useEffect(() => {
-    socket.on("syncComplete", (data : SocketData) => {
+    socket.on("syncComplete", () => {
       toast.success(`All Tenants Synced !!`);
     })
 
@@ -52,10 +57,17 @@ const Dashboard = () => {
   }, [])
 
   useEffect(() => {
-    if (tenantData?.tenantId) {
-      dispatch(getDashboardAllThunk({ tenantId : tenantData?.tenantId }));
+    if (!tenantData?.tenantId) return;
+    if (isRangeComplete) {
+      if (!isRangeValid) {
+        toast.error("Start date must be before or equal to end date");
+        return;
+      }
+      dispatch(getDashboardAllThunk({ tenantId: tenantData.tenantId, startDate, endDate }));
+    } else if (!startDate && !endDate) {
+      dispatch(getDashboardAllThunk({ tenantId: tenantData.tenantId }));
     }
-  }, [tenantData?.tenantId, dispatch]);
+  }, [tenantData?.tenantId, dispatch, startDate, endDate, isRangeComplete, isRangeValid]);
 
   return (
     <NavigationLayout>
@@ -101,6 +113,22 @@ const Dashboard = () => {
 
         <div className="p-6 bg-white shadow rounded-2xl">
           <h2 className="text-xl font-semibold mb-4">Orders & Revenue by Date</h2>
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2" max={endDate || undefined} />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2" disabled={!startDate} min={startDate || undefined}/>
+            <button
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+                if (tenantData?.tenantId) {
+                  dispatch(getDashboardAllThunk({ tenantId: tenantData.tenantId }));
+                }
+              }}
+              className="px-4 py-2 border border-gray-300 rounded-lg"
+            >
+              Clear
+            </button>
+          </div>
           {ordersByDate.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={ordersByDate}>

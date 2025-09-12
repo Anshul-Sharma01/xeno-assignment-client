@@ -5,11 +5,11 @@ import toast from "react-hot-toast";
 
 export const getDashboardAllThunk = createAsyncThunk(
     "dashboard/getAll",
-    async({ tenantId } : { tenantId : string }, { rejectWithValue }) => {
+    async({ tenantId, startDate, endDate } : { tenantId : string; startDate?: string; endDate?: string }, { rejectWithValue }) => {
         try{
             const requests = [
                 axiosInstance.get(`dashboard/${tenantId}/summary`),
-                axiosInstance.get(`dashboard/${tenantId}/orders-by-date`),
+                axiosInstance.get(`dashboard/${tenantId}/orders-by-date`, (startDate && endDate) ? { params: { start: startDate, end: endDate } } : undefined),
                 axiosInstance.get(`dashboard/${tenantId}/top-customers`),
                 axiosInstance.get(`dashboard/${tenantId}/avg-order-value`)
             ];
