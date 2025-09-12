@@ -11,18 +11,19 @@ export const getDashboardAllThunk = createAsyncThunk(
                 axiosInstance.get(`dashboard/${tenantId}/summary`),
                 axiosInstance.get(`dashboard/${tenantId}/orders-by-date`, (startDate && endDate) ? { params: { start: startDate, end: endDate } } : undefined),
                 axiosInstance.get(`dashboard/${tenantId}/top-customers`),
-                axiosInstance.get(`dashboard/${tenantId}/avg-order-value`)
+                axiosInstance.get(`dashboard/${tenantId}/avg-order-value`),
+                axiosInstance.get(`dashboard/${tenantId}/abandoned-checkouts`)
             ];
 
             const promise = Promise.allSettled(requests);
             toastHandler(promise as unknown as Promise<any>, "Loading dashboard...", "Dashboard loaded");
             const results = await promise;
 
-            const [summaryRes, ordersRes, topCustomersRes, aovRes] = results as [any, any, any, any];
+            const [summaryRes, ordersRes, topCustomersRes, aovRes, abandonedRes] = results as [any, any, any, any, any];
 
-            [summaryRes, ordersRes, topCustomersRes, aovRes].forEach((r, idx) => {
+            [summaryRes, ordersRes, topCustomersRes, aovRes, abandonedRes].forEach((r, idx) => {
                 if(r.status === "rejected"){
-                    const name = ["Summary", "Orders by date", "Top customers", "Average order value"][idx];
+                    const name = ["Summary", "Orders by date", "Top customers", "Average order value", "Abandoned checkouts"][idx];
                     toast.error(`${name} failed to load`);
                 }
             });
@@ -31,6 +32,7 @@ export const getDashboardAllThunk = createAsyncThunk(
             console.log("Orders Parsed:", ordersRes.status === "fulfilled" ? ordersRes.value.data : null);
             console.log("Top Customers Parsed:", topCustomersRes.status === "fulfilled" ? topCustomersRes.value.data : null);
             console.log("AOV Parsed:", aovRes.status === "fulfilled" ? aovRes.value.data : null);
+            console.log("Abandoned Parsed:", abandonedRes.status === "fulfilled" ? abandonedRes.value.data : null);
 
 
             return {
@@ -41,7 +43,11 @@ export const getDashboardAllThunk = createAsyncThunk(
                 } : { totalCustomers: 0, totalOrders: 0, totalRevenue: 0 },
                 ordersByDate: ordersRes.status === "fulfilled" ? (ordersRes.value.data?.orders ?? []) : [],
                 topCustomers: topCustomersRes.status === "fulfilled" ? (topCustomersRes.value.data?.topCustomers ?? []) : [],
-                averageOrderValue: aovRes.status === "fulfilled" ? (aovRes.value.data?.AOV ?? 0) : 0
+                averageOrderValue: aovRes.status === "fulfilled" ? (aovRes.value.data?.AOV ?? 0) : 0,
+                abandonedCheckouts: abandonedRes.status === "fulfilled" ? {
+                    count: abandonedRes.value.data?.count ?? 0,
+                    recent: abandonedRes.value.data?.recent ?? []
+                } : { count: 0, recent: [] }
             };
         }catch(err: any){
             return rejectWithValue(err.response?.data?.error || "Failed to load dashboard");
@@ -60,13 +66,15 @@ type DashboardState = {
     ordersByDate: any[];
     topCustomers: any[];
     averageOrderValue: number | null;
+    abandonedCheckouts: { count: number; recent: any[] } | null;
 };
 
 const initialState: DashboardState = {
     summary: null,
     ordersByDate: [],
     topCustomers: [],
-    averageOrderValue: null
+    averageOrderValue: null,
+    abandonedCheckouts: null
 };
 
 
@@ -77,11 +85,12 @@ const dashboardSlice = createSlice({
     extraReducers : (builder) => {
         builder
             .addCase(getDashboardAllThunk.fulfilled, (state, action: PayloadAction<any>) => {
-                const { summary, ordersByDate, topCustomers, averageOrderValue } = action.payload || {};
+                const { summary, ordersByDate, topCustomers, averageOrderValue, abandonedCheckouts } = action.payload || {};
                 state.summary = summary ?? null;
                 state.ordersByDate = ordersByDate ?? [];
                 state.topCustomers = topCustomers ?? [];
                 state.averageOrderValue = typeof averageOrderValue === "number" ? averageOrderValue : null;
+                state.abandonedCheckouts = abandonedCheckouts ?? null;
             })
             .addCase(getDashboardAllThunk.rejected, (_, action: any) => {
                 toast.error(action.payload as string);

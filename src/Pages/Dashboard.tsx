@@ -17,7 +17,7 @@ interface SocketData{
 const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { summary, ordersByDate, topCustomers, averageOrderValue } = useSelector(
+  const { summary, ordersByDate, topCustomers, averageOrderValue, abandonedCheckouts } = useSelector(
     (state: RootState) => state.dashboard
   );
   const tenantData = useSelector(
@@ -84,19 +84,19 @@ const Dashboard = () => {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="p-6 bg-white shadow rounded-2xl text-center">
+          <div className="p-6 bg-[#F2F8FF] shadow rounded-2xl text-center">
             <h2 className="text-xl font-semibold">Total Customers</h2>
             <p className="mt-2 text-3xl font-bold text-[#0F62FE]">
               {summary?.totalCustomers ?? 0}
             </p>
           </div>
-          <div className="p-6 bg-white shadow rounded-2xl text-center">
+          <div className="p-6 bg-[#D0E2FF] shadow rounded-2xl text-center">
             <h2 className="text-xl font-semibold">Total Orders</h2>
             <p className="mt-2 text-3xl font-bold text-[#0F62FE]">
               {summary?.totalOrders ?? 0}
             </p>
           </div>
-          <div className="p-6 bg-white shadow rounded-2xl text-center">
+          <div className="p-6 bg-[#F2F8FF] shadow rounded-2xl text-center">
             <h2 className="text-xl font-semibold">Total Revenue</h2>
             <p className="mt-2 text-3xl font-bold text-[#0F62FE]">
               ₹{summary?.totalRevenue ?? 0}
@@ -104,27 +104,40 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="p-6 bg-white shadow rounded-2xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="p-6 bg-[#FFEDEB] shadow rounded-2xl text-center">
+            <h2 className="text-xl font-semibold">Abandoned Checkouts</h2>
+            <p className="mt-2 text-3xl font-bold text-[#F60505]">
+              {abandonedCheckouts?.count ?? 0}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-6 bg-[#F2F8FF] shadow rounded-2xl">
           <h2 className="text-xl font-semibold">Average Order Value</h2>
           <p className="mt-2 text-2xl font-bold text-[#0F62FE]">
             ₹{averageOrderValue ?? 0}
           </p>
         </div>
 
-        <div className="p-6 bg-white shadow rounded-2xl">
+        <div className="p-6 bg-[#F2F8FF] shadow rounded-2xl">
           <h2 className="text-xl font-semibold mb-4">Orders & Revenue by Date</h2>
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2" max={endDate || undefined} />
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2" disabled={!startDate} min={startDate || undefined}/>
             <button
               onClick={() => {
+                if(!startDate && !endDate){
+                  return;
+                }
                 setStartDate("");
                 setEndDate("");
                 if (tenantData?.tenantId) {
                   dispatch(getDashboardAllThunk({ tenantId: tenantData.tenantId }));
                 }
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
+              disabled={!startDate && !endDate}
+              className={`px-4 py-2 border border-gray-300 rounded-lg ${!startDate && !endDate ? "cursor-not-allowed" : ""}`}
             >
               Clear
             </button>
@@ -145,7 +158,7 @@ const Dashboard = () => {
           )}
         </div>
 
-        <div className="p-6 bg-white shadow rounded-2xl">
+        <div className="p-6 bg-[#F2F8FF] shadow rounded-2xl">
           <h2 className="text-xl font-semibold mb-4">Top Customers</h2>
           {topCustomers.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -154,11 +167,41 @@ const Dashboard = () => {
                 <XAxis dataKey="customer_name" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="totalSpend" fill="#0F62FE" />
+                <Bar dataKey="totalSpend" fill="#F60505" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
             <p>No top customers data available.</p>
+          )}
+        </div>
+
+        <div className="p-6 bg-[#F2F8FF] shadow rounded-2xl">
+          <h2 className="text-xl font-semibold mb-2">Recent Abandoned Checkouts</h2>
+          {abandonedCheckouts?.recent?.length ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left">
+                <thead>
+                  <tr>
+                    <th className="p-2">Checkout ID</th>
+                    <th className="p-2">Customer ID</th>
+                    <th className="p-2">Subtotal</th>
+                    <th className="p-2">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {abandonedCheckouts.recent.map((c: any) => (
+                    <tr key={c.external_id} className="border-t">
+                      <td className="p-2">{c.external_id}</td>
+                      <td className="p-2">{c.customer_id || "Guest"}</td>
+                      <td className="p-2">₹{c.subtotal_price ?? 0}</td>
+                      <td className="p-2">{new Date(c.createdAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p>No abandoned checkouts found.</p>
           )}
         </div>
       </div>
